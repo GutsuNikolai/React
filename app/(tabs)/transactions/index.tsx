@@ -74,6 +74,7 @@ export default function TransactionsScreen() {
                 amount={item.amount}
                 createdAt={item.createdAt}
                 category={item.category}
+                currency={item.currency} 
                 onPress={() =>
                   router.push({ pathname: "/transactions/details/[id]", params: { id: item.id } })
                 }

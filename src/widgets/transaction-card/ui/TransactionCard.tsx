@@ -34,9 +34,16 @@ export function TransactionCard({ id, title, amount, createdAt, category, curren
               • {category}
             </Text>
           )}
-           <Text style={{ marginTop: 4, fontSize: 15, fontWeight: "700", color: isPositive ? "#17a34a" : "#dc2626" }}>
-            {isPositive ? "+" : ""}
-            {formatMoney(Math.abs(amount), currency)}     {/* ← здесь знак валюты */}
+           <Text
+            style={{
+              marginTop: 4,
+              fontSize: 15,
+              fontWeight: "700",
+              color: amount >= 0 ? "#17a34a" : "#dc2626",
+            }}
+          >
+            {amount >= 0 ? "+" : "-"}
+            {formatMoney(Math.abs(amount), currency ?? "USD")} {/* <-- вместо ...toFixed(2) + " $" */}
           </Text>
         </View>
       </View>
