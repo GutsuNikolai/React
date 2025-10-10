@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, Switch } from "react-native";
 import { useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
@@ -7,15 +7,21 @@ import { useRouter } from "expo-router";
 import { useTransactions } from "@entities/transaction/model/transactions-context";
 import type { Category } from "@entities/transaction/types";
 
+// --- Константы ---
 const CATEGORIES: Category[] = ["food", "salary", "transport", "entertainment", "other"];
+const CURRENCIES = ["USD", "EUR", "MDL"] as const;
 
-// схема: без optional у isExpense
+// --- Схема формы ---
 const schema = z.object({
   title: z.string().min(2, "Too short").max(64, "Too long"),
-  amount: z.string().refine((v) => !Number.isNaN(Number(v)) && Number(v) !== 0, "Enter non-zero number"),
-  category: z.enum(["food","salary","transport","entertainment","other"]),
+  amount: z
+    .string()
+    .refine((v) => !Number.isNaN(Number(v)) && Number(v) !== 0, "Enter non-zero number"),
+  category: z.enum(["food", "salary", "transport", "entertainment", "other"]),
   isExpense: z.boolean().default(true),
+  currency: z.enum(["USD", "EUR", "MDL"]),
 });
+
 type FormData = z.infer<typeof schema>;
 
 export default function AddTransactionModal() {
@@ -23,18 +29,27 @@ export default function AddTransactionModal() {
   const { addTransaction } = useTransactions();
   const [submitting, setSubmitting] = useState(false);
 
-  const { setValue, handleSubmit, formState, watch } = useForm<FormData>({
-    resolver: zodResolver(schema) as unknown as Resolver<FormData>, // ← ключевая строка
+  const { register, setValue, handleSubmit, formState, watch } = useForm<FormData>({
+    resolver: zodResolver(schema) as unknown as Resolver<FormData>,
     defaultValues: {
-        title: "",
-        amount: "",
-        category: "food",
-        isExpense: true,
+      title: "",
+      amount: "",
+      category: "food",
+      isExpense: true,
+      currency: "USD",
     },
     mode: "onChange",
-    });
+  });
+
+  // иногда RHF требует явной регистрации поля, если работаем только через setValue/watch
+  useEffect(() => {
+    register("currency");
+    register("category");
+    register("isExpense");
+  }, [register]);
 
   const category = watch("category");
+  const curr = watch("currency");
   const isExpense = watch("isExpense");
   const isValid = formState.isValid && !submitting;
 
@@ -44,11 +59,11 @@ export default function AddTransactionModal() {
       const raw = Number(data.amount);
       const amount = data.isExpense ? -Math.abs(raw) : Math.abs(raw);
 
-      // addTransaction ожидает: Omit<Transaction, "id" | "createdAt">
       addTransaction({
         title: data.title.trim(),
         amount,
         category: data.category,
+        currency: data.currency, // ← сохраняем в транзакцию
       });
 
       router.back();
@@ -57,7 +72,7 @@ export default function AddTransactionModal() {
     }
   });
 
-  // простая плашка выбора категорий
+  // --- Pills категорий ---
   const CategoryPills = useMemo(
     () => (
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
@@ -87,6 +102,36 @@ export default function AddTransactionModal() {
     [category, setValue]
   );
 
+  // --- Pills валют ---
+  const CurrencyPills = useMemo(
+    () => (
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        {CURRENCIES.map((c) => {
+          const active = curr === c;
+          return (
+            <Pressable
+              key={c}
+              onPress={() => setValue("currency", c, { shouldValidate: true })}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 999,
+                borderWidth: 1,
+                borderColor: active ? "#6366f1" : "#e5e7eb",
+                backgroundColor: active ? "#eef2ff" : "#fff",
+              }}
+            >
+              <Text style={{ fontWeight: active ? "700" : "500", color: active ? "#3730a3" : "#374151" }}>
+                {c}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    ),
+    [curr, setValue]
+  );
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.select({ ios: "padding", android: undefined })}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14 }}>
@@ -107,9 +152,7 @@ export default function AddTransactionModal() {
               paddingVertical: 10,
             }}
           />
-          {formState.errors.title && (
-            <Text style={{ color: "#ef4444" }}>{formState.errors.title.message}</Text>
-          )}
+          {formState.errors.title && <Text style={{ color: "#ef4444" }}>{formState.errors.title.message}</Text>}
         </View>
 
         {/* Amount */}
@@ -128,30 +171,30 @@ export default function AddTransactionModal() {
               paddingVertical: 10,
             }}
           />
-          {formState.errors.amount && (
-            <Text style={{ color: "#ef4444" }}>{formState.errors.amount.message}</Text>
-          )}
+          {formState.errors.amount && <Text style={{ color: "#ef4444" }}>{formState.errors.amount.message}</Text>}
         </View>
 
         {/* Expense / Income switch */}
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Text style={{ fontWeight: "600" }}>Is expense?</Text>
-          <Switch
-            value={isExpense}
-            onValueChange={(v) => setValue("isExpense", v, { shouldValidate: true })}
-          />
+          <Switch value={isExpense} onValueChange={(v) => setValue("isExpense", v, { shouldValidate: true })} />
         </View>
         <Text style={{ color: "#6b7280" }}>
           {isExpense ? "Will be saved as negative amount" : "Will be saved as positive amount"}
         </Text>
 
-        {/* Category pills */}
+        {/* Category */}
         <View style={{ gap: 8 }}>
           <Text style={{ fontWeight: "600" }}>Category</Text>
           {CategoryPills}
-          {formState.errors.category && (
-            <Text style={{ color: "#ef4444" }}>{formState.errors.category.message}</Text>
-          )}
+          {formState.errors.category && <Text style={{ color: "#ef4444" }}>{formState.errors.category.message}</Text>}
+        </View>
+
+        {/* Currency */}
+        <View style={{ gap: 8 }}>
+          <Text style={{ fontWeight: "600" }}>Currency</Text>
+          {CurrencyPills}
+          {formState.errors.currency && <Text style={{ color: "#ef4444" }}>{formState.errors.currency.message}</Text>}
         </View>
 
         {/* Actions */}

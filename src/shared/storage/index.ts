@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SCHEMA_VERSION_KEY = 'schema:version';
-const APP_SCHEMA_VERSION = 1; // увеличивай при изменениях структуры
+const APP_SCHEMA_VERSION = 2; // увеличивай при изменениях структуры
 
 export async function getItem<T>(key: string, fallback: T): Promise<T> {
   const raw = await AsyncStorage.getItem(key);
@@ -29,13 +29,15 @@ async function migrate(from: number, to: number) {
   let v = from;
 
   // пример: 0 -> 1
-  if (v < 1 && to >= 1) {
-    // здесь можно преобразовать старые транзакции
-    // например, нормализовать названия категорий/добавить поле currency
-    // const txns = await getItem<any[]>('transactions', []);
-    // const fixed = txns.map(t => ({ currency: 'MDL', ...t, category: String(t.category).trim() }));
-    // await setItem('transactions', fixed);
-    v = 1;
+  if (v < 2 && to >= 2) {
+    // проставим currency: "USD" там, где его нет
+    const raw = await AsyncStorage.getItem("@ft:transactions");
+    const items = raw ? JSON.parse(raw) : [];
+    const fixed = Array.isArray(items)
+      ? items.map((t: any) => (t && !t.currency ? { ...t, currency: "USD" } : t))
+      : [];
+    await AsyncStorage.setItem("@ft:transactions", JSON.stringify(fixed));
+    v = 2;
   }
 
   // добавляй блоки 1->2, 2->3 и т.д.

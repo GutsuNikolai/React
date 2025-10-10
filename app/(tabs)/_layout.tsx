@@ -1,21 +1,28 @@
+// app/(tabs)/_layout.tsx
 import { Tabs } from "expo-router";
-// ...
 
 export default function TabsLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
-      {/* существующие вкладки */}
-      <Tabs.Screen name="index" options={{ title: "Dashboard" }} />
-      {/* ...твои другие экраны... */}
-
-      {/* новая вкладка Settings */}
+    <Tabs
+      initialRouteName="dashboard/index"
+      screenOptions={{ headerShown: false }}
+    >
+      <Tabs.Screen
+        name="transactions"
+        options={{ title: "Transactions" }}
+      />
+      <Tabs.Screen
+        name="dashboard/index"
+        options={{ title: "Dashboard" }}
+      />
+      
       <Tabs.Screen
         name="settings"
-        options={{
-          title: "Settings",
-          // tabBarIcon: ({ color, size }) => <SomeIcon color={color} size={size} />
-        }}
+        options={{ title: "Settings" }}
       />
+
+      {/* чтобы не появлялись «лишние» табы для папок-родителей */}
+      <Tabs.Screen name="dashboard" options={{ href: null }} />
     </Tabs>
   );
 }

@@ -2,8 +2,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { TransactionsProvider, useTransactions } from "@entities/transaction/model/transactions-context";
 import { View, ActivityIndicator } from "react-native";
-import { ensureSchema } from '@/shared/storage';
-
+import { SettingsProvider } from "@/shared/settings-context";
 
 
 function AppStack() {
@@ -24,11 +23,10 @@ function AppStack() {
 
 export default function RootLayout() {
   return (
-    <>
-      <StatusBar style="auto" />
+    <SettingsProvider>
       <TransactionsProvider>
-        <AppStack />
+        <Stack screenOptions={{ headerShown: false }} />
       </TransactionsProvider>
-    </>
+    </SettingsProvider>
   );
 }

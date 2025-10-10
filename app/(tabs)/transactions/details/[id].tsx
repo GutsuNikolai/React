@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { View, Text, Button, Alert } from "react-native";
 import { useTransactions } from "@entities/transaction/model/transactions-context";
 import { formatShort } from "@shared/lib/date";
+import { formatMoney } from "@/shared/currency";
 
 export default function TransactionDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,6 +34,10 @@ export default function TransactionDetailsScreen() {
     ]);
   };
 
+   const onEdit = () => {
+    router.push({ pathname: "/(modals)/edit-transaction/[id]", params: { id: tx.id } });
+  };
+
   return (
     <View style={{ flex: 1, padding: 16, gap: 8 }}>
       <Text style={{ fontSize: 22, fontWeight: "700" }}>{tx.title}</Text>
@@ -41,8 +46,15 @@ export default function TransactionDetailsScreen() {
         {tx.amount >= 0 ? "+" : ""}
         {tx.amount.toFixed(2)} $
       </Text>
-
+      
       <View style={{ height: 16 }} />
+      {/* 👇 новая кнопка Edit */}
+      <Button title="Edit" onPress={onEdit} />
+      <Text style={{ fontSize: 18, fontWeight: "700", marginTop: 8, color: tx.amount >= 0 ? "#17a34a" : "#dc2626" }}>
+        {tx.amount >= 0 ? "+" : ""}
+        {formatMoney(Math.abs(tx.amount), tx.currency)}
+      </Text>
+      
       <Button title="Back" onPress={() => router.back()} />
       <View style={{ height: 8 }} />
       <Button title="Delete" color="#dc2626" onPress={onDelete} />
