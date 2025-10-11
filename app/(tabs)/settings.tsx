@@ -1,6 +1,8 @@
+// app/(tabs)/settings.tsx
 import React from "react";
 import { View, Text, ScrollView, Pressable, Alert } from "react-native";
-import * as FileSystem from "expo-file-system";
+// ВАЖНО: легаси-API (SDK 54+)
+import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { useTransactions } from "@entities/transaction/model/transactions-context";
 import type { Transaction } from "@entities/transaction/types";
@@ -8,12 +10,6 @@ import type { Transaction } from "@entities/transaction/types";
 export default function SettingsScreen() {
   const { transactions, clearAll } = useTransactions();
 
-  // ---- маленький адаптер для кривых типов ----
-  const FS = FileSystem as unknown as {
-    cacheDirectory?: string;
-    documentDirectory?: string;
-    writeAsStringAsync: (uri: string, data: string, opts?: any) => Promise<void>;
-  };
   const toCSV = (rows: Transaction[]) => {
     const header = ["id", "title", "amount", "createdAt", "category", "currency"].join(",");
     const body = rows
@@ -40,11 +36,25 @@ export default function SettingsScreen() {
         return;
       }
 
+      const baseDir = FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? null;
+      if (!baseDir) {
+        // Обычно так бывает в web-режиме
+        Alert.alert(
+          "Not supported here",
+          "Saving files is not supported on this platform. Try running on iOS/Android (device/emulator)."
+        );
+        return;
+      }
+
       const csv = toCSV(transactions);
-      const baseDir = (FS.cacheDirectory ?? FS.documentDirectory ?? "") as string;
       const fileUri = `${baseDir}transactions_${Date.now()}.csv`;
 
-       await FS.writeAsStringAsync(fileUri, csv);
+      await FileSystem.writeAsStringAsync(fileUri, csv); // UTF-8 по умолчанию
+      // (необязательно) проверим, что файл существует
+      const info = await FileSystem.getInfoAsync(fileUri);
+      if (!info.exists) {
+        throw new Error("File was not created");
+      }
 
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri, {
@@ -63,7 +73,14 @@ export default function SettingsScreen() {
   const onClearAll = () => {
     Alert.alert("Clear data", "Delete all transactions?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => (clearAll(), Alert.alert("Done", "All transactions removed")) },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          clearAll();
+          Alert.alert("Done", "All transactions removed");
+        },
+      },
     ]);
   };
 
@@ -89,7 +106,9 @@ export default function SettingsScreen() {
 
       <Card title="Export">
         <Btn label="Export transactions (CSV)" onPress={onExportCSV} />
-        <Text style={{ color: "#6b7280" }}>Exports all transactions to a .csv file.</Text>
+        <Text style={{ color: "#6b7280" }}>
+          Exports all transactions as a .csv file you can share or save.
+        </Text>
       </Card>
 
       <Card title="Danger zone">
