@@ -1,14 +1,11 @@
-// + import
 import { ScrollView, View, Text, Dimensions } from "react-native";
-import { useTransactions } from "@entities/transaction/model/transactions-context";
 import { useSummary } from "@features/summary/useSummary";
 import { LineChart, BarChart } from "react-native-chart-kit";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function DashboardScreen() {
-  const { transactions } = useTransactions();
-  const { income, expense, balance, linePoints, catLabels, catValues } = useSummary(transactions);
+  const { incomeUSD, expenseUSD, balanceUSD, linePoints, catLabels, catValues } = useSummary();
 
   const lineData = {
     labels: linePoints.map((p, i) => (i % 2 === 0 ? p.label : "")),
@@ -17,7 +14,6 @@ export default function DashboardScreen() {
 
   const short = (s: string) => (s.length > 9 ? s.slice(0, 9) + "…" : s);
   const labelsShort = catLabels.map(short);
-  const chartWidth = Math.max(screenWidth - 16 * 2, catLabels.length * 70);
 
   const Card = ({ title, value }: { title: string; value: string }) => (
     <View style={{ flex: 1, padding: 14, borderWidth: 1, borderColor: "#e5e5e5", borderRadius: 12, backgroundColor: "#fff" }}>
@@ -31,12 +27,12 @@ export default function DashboardScreen() {
       <Text style={{ fontSize: 20, fontWeight: "700" }}>Summary</Text>
 
       <View style={{ flexDirection: "row", gap: 12 }}>
-        <Card title="Income"  value={`$ ${income.toFixed(2)}`} />
-        <Card title="Expense" value={`$ ${expense.toFixed(2)}`} />
+        <Card title="Income"  value={`$ ${incomeUSD.toFixed(2)}`} />
+        <Card title="Expense" value={`$ ${expenseUSD.toFixed(2)}`} />
       </View>
 
       <View style={{ flexDirection: "row", gap: 12 }}>
-        <Card title="Balance" value={`$ ${balance.toFixed(2)}`} />
+        <Card title="Balance" value={`$ ${balanceUSD.toFixed(2)}`} />
       </View>
 
       <Text style={{ marginTop: 12, fontSize: 16, fontWeight: "700" }}>Net by day (14d)</Text>
@@ -66,7 +62,7 @@ export default function DashboardScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <BarChart
               data={{ labels: labelsShort, datasets: [{ data: catValues }] }}
-              width={screenWidth - 24}      // ← дай небольшой отступ от краёв
+              width={screenWidth - 24}
               height={240}
               fromZero
               showValuesOnTopOfBars
