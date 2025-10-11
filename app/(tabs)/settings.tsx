@@ -6,6 +6,8 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { useTransactions } from "@entities/transaction/model/transactions-context";
 import type { Transaction } from "@entities/transaction/types";
+import * as LocalAuth from "expo-local-authentication";
+import { setBiometricRequired, isBiometricRequired } from "@/shared/biometric";
 
 export default function SettingsScreen() {
   const { transactions, clearAll } = useTransactions();
@@ -27,6 +29,32 @@ export default function SettingsScreen() {
       )
       .join("\n");
     return header + "\n" + body;
+  };
+
+  const [bioOn, setBioOn] = React.useState(false);
+  React.useEffect(() => { isBiometricRequired().then(setBioOn).catch(() => {}); }, []);
+
+  const toggleBiometric = async () => {
+    try {
+      if (!bioOn) {
+        const hw = await LocalAuth.hasHardwareAsync();
+        const enrolled = await LocalAuth.isEnrolledAsync();
+        if (!hw || !enrolled) { 
+          Alert.alert("Not available", "Biometric authentication is not available on this device."); 
+          return; 
+        }
+        const res = await LocalAuth.authenticateAsync({ promptMessage: "Enable biometric unlock" });
+        if (!res.success) return;
+        await setBiometricRequired(true);
+        setBioOn(true);
+      } else {
+        await setBiometricRequired(false);
+        setBioOn(false);
+      }
+    } catch (e) {
+      console.warn(e);
+      Alert.alert("Error", "Could not change biometric setting.");
+    }
   };
 
   const onExportCSV = async () => {
@@ -114,6 +142,19 @@ export default function SettingsScreen() {
       <Card title="Danger zone">
         <Btn label="Clear all transactions" danger onPress={onClearAll} />
       </Card>
+      <Card title="Security">
+      <Pressable
+        onPress={toggleBiometric}
+        style={{ alignItems:"center", paddingVertical:12, borderRadius:12, backgroundColor: bioOn ? "#10b981" : "#6b7280" }}
+      >
+        <Text style={{ color:"#fff", fontWeight:"700" }}>
+          {bioOn ? "Disable biometric lock" : "Enable biometric lock"}
+        </Text>
+      </Pressable>
+      <Text style={{ color:"#6b7280" }}>
+        When enabled, the app will ask FaceID/TouchID at launch.
+      </Text>
+    </Card>
     </ScrollView>
   );
 }

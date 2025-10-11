@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { TransactionsProvider, useTransactions } from "@entities/transaction/model/transactions-context";
 import { View, ActivityIndicator } from "react-native";
 import { SettingsProvider } from "@/shared/settings-context";
-
+import AuthGate from "@/shared/AuthGate";
 
 function AppStack() {
   const { isHydrated } = useTransactions();
@@ -23,10 +23,12 @@ function AppStack() {
 
 export default function RootLayout() {
   return (
-    <SettingsProvider>
-      <TransactionsProvider>
-        <Stack screenOptions={{ headerShown: false }} />
-      </TransactionsProvider>
-    </SettingsProvider>
+    <AuthGate>
+      <SettingsProvider>
+        <TransactionsProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </TransactionsProvider>
+      </SettingsProvider>
+    </AuthGate>
   );
 }

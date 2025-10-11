@@ -3,9 +3,7 @@ module.exports = function (api) {
   api.cache(true);
   return {
     presets: ["babel-preset-expo"],
-    plugins: [
-      // нужен expo-router
-      "expo-router/babel",
+    plugins: [  
       // алиасы под src/*
       [
         "module-resolver",
