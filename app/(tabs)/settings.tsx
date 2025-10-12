@@ -130,7 +130,7 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-      <Text style={{ fontSize: 24, fontWeight: "700" }}>Settings</Text>
+      {/* <Text style={{ fontSize: 24, fontWeight: "700" }}>Settings</Text> */}
 
       <Card title="Export">
         <Btn label="Export transactions (CSV)" onPress={onExportCSV} />

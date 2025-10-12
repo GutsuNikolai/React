@@ -24,7 +24,7 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 32 }}>
-      <Text style={{ fontSize: 20, fontWeight: "700" }}>Summary</Text>
+      
 
       <View style={{ flexDirection: "row", gap: 12 }}>
         <Card title="Income"  value={`$ ${incomeUSD.toFixed(2)}`} />

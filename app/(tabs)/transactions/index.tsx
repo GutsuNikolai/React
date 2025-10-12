@@ -39,16 +39,7 @@ export default function TransactionsScreen() {
     <>
       <Stack.Screen
         options={{
-          title: "Transactions",
-          headerShown: true,
-          headerRight: () => (
-            <Text
-              onPress={() => router.push("/(modals)/add-transaction")}
-              style={{ color: "#6366f1", fontWeight: "700", paddingHorizontal: 12 }}
-            >
-              Add
-            </Text>
-          ),
+          headerShown: false
         }}
       />
 
