@@ -1,1 +1,2 @@
-Just check "Realises", download the APK and enjoy!
+Just check "Releases", download the APK and enjoy!
+
