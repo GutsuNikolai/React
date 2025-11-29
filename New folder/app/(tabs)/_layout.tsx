@@ -1,6 +1,6 @@
 import { Tabs, Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons"; // ← иконки
-import { Pressable } from "react-native"; 
+
 export default function TabsLayout() {
   return (
     <Tabs
@@ -17,13 +17,6 @@ export default function TabsLayout() {
         name="transactions"
         options={{
           title: "Transactions",
-          headerRight: () => (
-            <Link href="/add-transaction" asChild>
-              <Pressable style={{ marginRight: 12 }}>
-                <Ionicons name="add-circle-outline" size={36} color="#2563eb" />
-              </Pressable>
-            </Link>
-          ),
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "receipt" : "receipt-outline"}
@@ -33,7 +26,6 @@ export default function TabsLayout() {
           ),
         }}
       />
-
 
       <Tabs.Screen
         name="dashboard/index"

@@ -98,14 +98,12 @@ export default function EditTransactionModal() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.select({ ios: "padding", android: undefined })}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14 }}>
-        {/* <Text style={{ fontSize: 22, fontWeight: "700" }}>Edit transaction</Text> */}
+        <Text style={{ fontSize: 22, fontWeight: "700" }}>Edit transaction</Text>
 
         {/* Title */}
         <View style={{ gap: 6 }}>
           <Text style={{ fontWeight: "600" }}>Title</Text>
           <TextInput
-          placeholder="New title"
-          placeholderTextColor="#9ca3af"
             onChangeText={(t) => setValue("title", t, { shouldValidate: true })}
             style={{
               backgroundColor: "#fff", borderRadius: 12, borderWidth: 1,
@@ -120,8 +118,6 @@ export default function EditTransactionModal() {
         <View style={{ gap: 6 }}>
           <Text style={{ fontWeight: "600" }}>Amount</Text>
           <TextInput
-          placeholder="New price"
-          placeholderTextColor="#9ca3af"
             keyboardType="decimal-pad"
             onChangeText={(t) => setValue("amount", t, { shouldValidate: true })}
             style={{

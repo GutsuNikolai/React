@@ -7,8 +7,7 @@ module.exports = function (api) {
       [
         "module-resolver",
         {
-          // ВАЖНО: корень — только src, а не "."
-          root: ["./src"],
+          root: ["./src"],         // <- обязательно
           alias: {
             "@": "./src",
             "@shared": "./src/shared",
@@ -19,7 +18,7 @@ module.exports = function (api) {
           extensions: [".ts", ".tsx", ".js", ".jsx"]
         }
       ],
-      // если используешь reanimated, добавь его последним:
+      // если используешь react-native-reanimated — раскомментируй ниже и помести ПОСЛЕДНИМ
       // "react-native-reanimated/plugin",
     ],
   };

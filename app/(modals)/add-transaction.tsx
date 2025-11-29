@@ -117,11 +117,12 @@ export default function AddTransactionModal() {
           <Text style={{ fontWeight: "600" }}>Title</Text>
           <TextInput
             placeholder="e.g. Groceries"
+            placeholderTextColor="#9ca3af"
             onChangeText={(t) => setValue("title", t, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
             style={{
               backgroundColor: "#fff", borderRadius: 12, borderWidth: 1,
               borderColor: formState.errors.title ? "#ef4444" : "#e5e7eb",
-              paddingHorizontal: 12, paddingVertical: 10,
+              paddingHorizontal: 12, paddingVertical: 10, color: "#111827",
             }}
           />
           {formState.errors.title && <Text style={{ color: "#ef4444" }}>{formState.errors.title.message}</Text>}
@@ -133,11 +134,12 @@ export default function AddTransactionModal() {
         <TextInput
             placeholder="e.g. 12.50"
             keyboardType="decimal-pad"
+            placeholderTextColor="#9ca3af"
             onChangeText={(t) => setValue("amount", t, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}
             style={{
               backgroundColor: "#fff", borderRadius: 12, borderWidth: 1,
               borderColor: formState.errors.amount ? "#ef4444" : "#e5e7eb",
-              paddingHorizontal: 12, paddingVertical: 10,
+              paddingHorizontal: 12, paddingVertical: 10, color: "#111827",
             }}
           />
           {formState.errors.amount && <Text style={{ color: "#ef4444" }}>{formState.errors.amount.message}</Text>}

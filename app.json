@@ -17,7 +17,6 @@
     },
     "android": {
       "package": "com.nicolae.financetracker",
-         
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -30,17 +29,21 @@
     },
     "plugins": [
       "expo-router",
-      ["expo-build-properties", {
-        "android": {
-          "kotlinVersion": "2.0.21",
-          "reactNativeGradlePluginVersion": "0.79.0"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "2.0.21",
+            "reactNativeGradlePluginVersion": "0.79.0",
+            "enableBundleCompression": false
+          }
         }
-      }]
+      ]
     ],
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "d3e2c26a-68d7-42bf-a216-26d74be90c58"
+        "projectId": "896ca749-191b-4a70-944f-b8af0e195121"
       }
     },
     "owner": "nicolae_fin_tracker_app"

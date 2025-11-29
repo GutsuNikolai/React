@@ -5,11 +5,6 @@ export default function TransactionsStackLayout() {
     <Stack screenOptions={{ headerTitleAlign: "center" }}>
       <Stack.Screen name="index" options={{ title: "Transactions" }} />
       {/* <Stack.Screen name="add" options={{ title: "Add transaction" }} /> */}
-      <Stack.Screen
-        name="details/[id]"
-        options={{ title: "Transaction details",}} 
-      />
     </Stack>
-    
   );
 }
